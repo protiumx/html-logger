@@ -1,6 +1,7 @@
 {
   "name": "html-logger",
   "description": "Simple html logger that appends into the page's body",
+  "version": "0.1.1",
   "authors": [
     "Brian Mayo"
   ],
