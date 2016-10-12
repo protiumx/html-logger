@@ -6,6 +6,8 @@ written with ES6 syntax and transpiled with **babel.io**
 
 this logger is usefull when you have to debug on enviroments without web-tools
 
+current release: v0.1.0
+
 install
 =======
 ## npm
