@@ -1,0 +1,36 @@
+{
+  "name": "html-logger",
+  "version": "0.1.0",
+  "description": "Simple html logger that appends into the page's body",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/b1tdust/html-logger.git"
+  },
+  "keywords": [
+    "logger",
+    "html",
+    "es6"
+  ],
+  "author": {
+    "name": "Brian Mayo",
+    "url": "https://github.com/b1tdust/"
+    },
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/b1tdust/html-logger/issues"
+  },
+  "homepage": "https://github.com/b1tdust/html-logger#readme",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.16.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.1.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-uglify": "^2.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}

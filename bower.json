@@ -1,0 +1,21 @@
+{
+  "name": "html-logger",
+  "description": "Simple html logger that appends into the page's body",
+  "authors": [
+    "Brian Mayo"
+  ],
+  "license": "GPL-3.0",
+  "keywords": [
+    "logger",
+    "html",
+    "es6"
+  ],
+  "homepage": "https://github.com/b1tdust/html-logger",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
