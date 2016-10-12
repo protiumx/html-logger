@@ -8,7 +8,7 @@ written with ES6 syntax and transpiled with **babel.io**
 
 this logger is usefull when you have to debug on enviroments without web-tools
 
-current release: v0.1.0
+current release: [v0.1.1](https://github.com/b1tdust/html-logger/releases/tag/v0.1.1)
 
 install
 =======
@@ -28,8 +28,7 @@ usage
 add a simple script refence to **dist/html-logger.bundle.js** and initialize the logger
 ```js
 let logger = new HtmlLogger()
-logger.init() // appends the logger
-logger.show()
+logger.init({show: true}) // appends the logger
 ```
 
 ## node
