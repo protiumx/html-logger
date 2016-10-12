@@ -60,7 +60,7 @@ export default class HtmlLogger {
 	}
 
 	init(show = false) {
-		if (this.$.container) return true
+		if (this.initialized) return
 		if (!document || !document.createElement || !document.body || !document.body.appendChild)
 			throw new Error("HtmlLogger not initialized")
 
@@ -261,5 +261,3 @@ export default class HtmlLogger {
 	}
 
 }
-
-if (window) window.HtmlLogger = HtmlLogger

@@ -297,6 +297,3 @@ var HtmlLogger = function () {
 }();
 
 exports.default = HtmlLogger;
-
-
-if (window) window.HtmlLogger = HtmlLogger;

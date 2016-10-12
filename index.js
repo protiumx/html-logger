@@ -1,2 +1,2 @@
-const logger = require('./dist/html-logger')
+const logger = require('./dist/html-logger').default
 module.exports = logger
