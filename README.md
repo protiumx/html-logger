@@ -74,4 +74,5 @@ npm install -g gulp
 npm install
 ``` 
 ### run gulp
-`gulp build`
+run default tasks
+`gulp`
