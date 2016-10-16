@@ -65,7 +65,7 @@ api
 
 ## methods
 * `constructor([object] options)`: initialize the object. parameter `options` is optional
-* `init()`: initializes the logger.
+* `init()`: initializes the logger. throws exception if **document** node == null
 * `show(), hide(), toggle()`: display methods
 * `print([object] msg, [string - a valid hex color] hexColor, [string] level)`: append message lines into the logger.
 
