@@ -8,7 +8,7 @@ written with ES6 syntax and transpiled with **babel.io**
 
 this logger is usefull when you have to debug on enviroments without web-tools
 
-current release: [v0.1.1](https://github.com/b1tdust/html-logger/releases/tag/v0.1.1)
+current release: [v0.1.2](https://github.com/b1tdust/html-logger/releases/tag/v0.1.2)
 
 install
 =======
