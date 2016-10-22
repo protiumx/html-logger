@@ -4,7 +4,7 @@ html-logger
 simple html logger that appends it self to a page's body. based on [http://www.songho.ca/misc/logger/files/Logger.js](http://www.songho.ca/misc/logger/files/Logger.js).
 written with ES6 syntax and transpiled with **babel.io**
 
-![demo](https://github.com/b1tdust/html-logger/blob/release/v0.1.0/demo/demo.gif?raw=true)
+![demo](https://github.com/b1tdust/html-logger/blob/master/demo/demo.gif?raw=true)
 
 this logger is usefull when you have to debug on enviroments without web-tools
 
