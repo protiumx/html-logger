@@ -1,10 +1,10 @@
 {
   "name": "html-logger",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Simple html logger that appends into the page's body",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "repository": {
     "type": "git",
@@ -18,7 +18,7 @@
   "author": {
     "name": "Brian Mayo",
     "url": "https://github.com/b1tdust/"
-    },
+  },
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/b1tdust/html-logger/issues"
@@ -31,6 +31,7 @@
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-uglify": "^2.0.0",
+    "jasmine": "^2.5.2",
     "vinyl-source-stream": "^1.1.0"
   }
 }
