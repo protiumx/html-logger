@@ -28,7 +28,7 @@ usage
 add a simple script refence to **dist/html-logger.bundle.js** and initialize the logger
 ```js
 let logger = new HtmlLogger()
-logger.init({show: true}) // appends the logger
+logger.init(true) // appends the logger
 ```
 
 ## node
@@ -37,7 +37,7 @@ logger.init({show: true}) // appends the logger
 import HtmlLogger from 'html-logger'
 window.onload = () => {
     const logger = new HtmlLogger({name: "Test App"})
-    logger.init({show: true})
+    logger.init(true)
     global.logger = logger
 }
 ```
@@ -54,7 +54,6 @@ api
 ===
 ## options
 * `name`: [string] the app name to show on the logger title. **default** `Html Logger`
-* `show`: [boolean] if true the logger shows after init. **default** `false`  
 * `enabled`: [boolean] indicates if logger is enabled. logger prints only when it is enabled. **default** `true`
 * `height`: [number] indicates the logger container height. **default** `420`
 * `animationDuration`: [number] the animation durations in milli seconds. **default** `200`
@@ -65,7 +64,7 @@ api
 
 ## methods
 * `constructor([object] options)`: initialize the object.
-* `init()`: initializes the logger. throws exception if **document** node == null
+* `init(Boolean show = false)`: initializes the logger. throws exception if **document** node == null
 * `show(), hide(), toggle()`: display methods
 * `print([object] msg, [string - a valid hex color] hexColor, [string] level)`: append message lines into the logger.
 
