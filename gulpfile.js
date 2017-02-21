@@ -5,16 +5,20 @@ const babel = require('gulp-babel')
 
 gulp.task('bundle', () => {
 	return browserify("./src/html-logger.bundle.js")
-        .transform("babelify", {presets: ["es2015"]})
-        .bundle()
-        .pipe(source("html-logger.bundle.js"))
-        .pipe(gulp.dest('dist'));
+		.transform("babelify", { presets: ["es2015"] })
+		.bundle()
+		.pipe(source("html-logger.bundle.js"))
+		.pipe(gulp.dest('dist'));
 })
 
 gulp.task('build', () => {
-		return gulp.src("src/html-logger.js")
-		.pipe(babel({ presets: ["es2015"]}))
+	return gulp.src("src/html-logger.js")
+		.pipe(babel({ presets: ["es2015"] }))
 		.pipe(gulp.dest("dist"))
+})
+
+gulp.task('develop', () => {
+	gulp.watch(["src/*.js"], ["default"])
 })
 
 gulp.task('default', ['build', 'bundle'])

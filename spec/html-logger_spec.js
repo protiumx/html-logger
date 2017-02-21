@@ -11,6 +11,6 @@ describe("Html Logger tests", () => {
     it("Throws exception", () => {
         let logger = instance()
 
-        expect(logger.init).toThrow()
+        expect(logger.init).toThrow() // document not exist
     })
 })

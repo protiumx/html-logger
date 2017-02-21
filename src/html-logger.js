@@ -5,6 +5,8 @@ const requestAnimationFrame = (frameTime = 16) => {
 	else return function (callback) { return setTimeout(callback, frameTime) }
 }
 
+const shortCutsKeys = ["shift", "alt", "ctrl"]
+
 const defaultOptions = {
 	name: "Html Logger",
 	enabled: true,
@@ -12,14 +14,15 @@ const defaultOptions = {
 	animationDuration: 200,
 	maxLogCount: 40,
 	shortCuts: {
-		toggle: "T",
-		clean: "L"
+		toggle: "shift+T",
+		clean: "shift+L"
 	},
-	captureWebKit: false, // captures logs from web kit
-	bufferSize: 2, // 50 lines in buffer
-	loggingFormat: "$TIME$ $LEVEL$ $MESSAGE$",
-	loggingLevel: 1,
-	argumentsSeparator: " "
+	captureNative: false, // captures logs from web kit
+	bufferSize: 100, // keep 100 lines in memory
+	loggingFormat: "[TIME] [LEVEL] [MESSAGE]",
+	argumentsSeparator: " ",
+	debug: false,
+	utcTime: true
 }
 
 const levels = {
@@ -71,23 +74,24 @@ export default class HtmlLogger {
 			throw new Error("HtmlLogger not initialized")
 
 		this.$.container = document.createElement("div")
-		const containerStyle = `width:100%; height: ${this._options.height}px;
-					margin:0; padding: 4px 0 0 4px;
+		const containerStyle = `width:100%; height: ${this._options.height + 40}px;
+					margin:0; padding: 6px;
 					position:fixed;
 					left:0;
 					z-index: 9999;
 					font-family: monospace;
 					background: rgba(0, 0, 0, 0.8);
+					overflow: hidden;
 					bottom: ${-this._options.height}px` // intially hidden
 		this.$.container.setAttribute("style", containerStyle)
 
 		this.$.log = document.createElement("div")
-		this.$.log.setAttribute("style", `height: ${this._options.height}px;`)
+		this.$.log.setAttribute("style", `height: ${this._options.height}px; overflow: hidden`)
 
 		const span = document.createElement("span")
 		span.style.color = "#afa"
 		span.style.fontWeight = "bold"
-		const title = `===== ${this._options.name} - Logger started at ${new Date()} =====`
+		const title = `===== ${this._options.name} - Logger started at ${this._options.utcTime ? new Date().toUTCString() : new Date()} =====`
 		span.appendChild(document.createTextNode(title))
 
 		const info = document.createElement('div')
@@ -99,13 +103,13 @@ export default class HtmlLogger {
 		const imgStyle = `width:20px; cursor: pointer; position: absolute; margin: 4px;`
 		const closeSvg = domParser.parseFromString(icons.close, 'application/xml')
 		const close = info.ownerDocument.importNode(closeSvg.documentElement, true)
-		close.setAttribute("style", `${imgStyle} right:0;`)
+		close.setAttribute("style", `${imgStyle} right:14px;`)
 		close.onclick = this.hide.bind(this)
 		info.appendChild(close)
 
 		const cleanSvg = domParser.parseFromString(icons.clean, 'application/xml')
 		const clean = info.ownerDocument.importNode(cleanSvg.documentElement, true)
-		clean.setAttribute("style", `${imgStyle} right:32px;`)
+		clean.setAttribute("style", `${imgStyle} right:38px;`)
 		clean.onclick = this.clean.bind(this)
 		info.appendChild(clean)
 
@@ -117,31 +121,10 @@ export default class HtmlLogger {
 		document.body.appendChild(this.$.container)
 		this.animationFrame = requestAnimationFrame()
 
-		if (this._options.captureWebKit) {
-			const webkitConsole = {
-				log: console.log,
-				warn: console.warn,
-				error: console.error
-			}
-
-			console.log = (args) => {
-				this.info("[native]", args)
-				webkitConsole.log(args)				
-			}
-
-			console.error = (args) => {
-				this.error("[native]", args)
-				webkitConsole.error(args)
-			}
-		}
+		this._setKeyboardEvent()
+		this._captureNativeLog()
 
 		this.initialized = true
-
-		window.onkeydown = (function (e) {
-			if (e.keyCode == this._options.shortCuts.toggle.toUpperCase().charCodeAt(0) && e.ctrlKey) this.toggle()
-			if (e.keyCode == this._options.shortCuts.clean.toUpperCase().charCodeAt(0) && e.ctrlKey) this.clean()
-		}).bind(this)
-
 		if (show) this.show()
 	}
 
@@ -172,12 +155,12 @@ export default class HtmlLogger {
 		const slideDown = () => {
 			const duration = Date.now() - animationTime
 			if (duration >= this._options.animationDuration) {
-				this.$.container.style.bottom = `${-this._options.height}px`
+				this.$.container.style.bottom = `${-this._options.height - 58}px`
 				this.$.log.style.visibility = "hidden"
 				this.visible = false
 				return
 			}
-			const y = Math.round(-this._options.height * 0.5 * (1 - Math.cos(Math.PI * duration / this._options.animationDuration)))
+			const y = Math.round((-this._options.height) * 0.5 * (1 - Math.cos(Math.PI * duration / this._options.animationDuration)))
 			this.$.container.style.bottom = `${y}px`
 			this.animationFrame(slideDown)
 		}
@@ -234,10 +217,13 @@ export default class HtmlLogger {
 			timeElement.appendChild(document.createTextNode(`${time}\u00a0`))
 
 			if (this.buffer.length >= this._options.bufferSize) this.buffer.shift()
-			this.buffer.push(`${time} ${level} ${lines[i]}`)
+			let messageLine = this._options.loggingFormat.replace("[TIME]", time)
+										.replace("[LEVEL]", level)
+										.replace("[MESSAGE]", lines[i])// `${time} ${level} ${lines[i]}`) 
+			this.buffer.push(messageLine)
 			let msgContainer = document.createElement("div")
 			msgContainer.setAttribute("style", `word-wrap:break-word;margin-left:6.0em;color: ${hexColor}`)
-			msgContainer.appendChild(document.createTextNode(`${level} ${lines[i].replace(/ /g, "\u00a0")}`))
+			msgContainer.appendChild(document.createTextNode(messageLine))
 
 			let newLineDiv = document.createElement("div")
 			newLineDiv.setAttribute("style", "clear:both;")
@@ -253,13 +239,10 @@ export default class HtmlLogger {
 			if (this._linesCount > this._options.maxLogCount) {
 				this.$.log.childNodes[0].remove()
 			}
+			
 			this.$.log.scrollTop = this.$.log.scrollHeight
 		}
 
-	}
-
-	get bufferSize() {
-		return this.buffer.length
 	}
 
 	getBuffer() {
@@ -268,12 +251,12 @@ export default class HtmlLogger {
 		return buf
 	}
 
-	// <levels>
 	info() {
 		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator))
 	}
 
 	debug() {
+		if (!this._options.debug) return
 		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.debug.color, levels.debug.name)
 	}
 
@@ -288,22 +271,111 @@ export default class HtmlLogger {
 	error() {
 		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.error.color, levels.error.name)
 	}
-	// </levels>
+
+	setEnableCaptureNativeLog(enabled) {
+		if (enabled) this._captureNativeLog()
+		else {
+			console.log = this._nativeConsole.log
+			console.warn = this._nativeConsole.warn
+			console.error = this._nativeConsole.error
+			this._nativeConsole = null
+		}
+	}
+
+	toggleDebug() {
+		this._options.debug = !this._options.debug
+	}
+
+	_processShortCuts() {
+		const toggleKeys = this._options.shortCuts.toggle.split("+")
+		const cleanKeys = this._options.shortCuts.clean.split("+")
+		this._shortCuts = {
+			toggle: {
+				first: toggleKeys[1] ? toggleKeys[0] : null,
+				second: toggleKeys[1] || toggleKeys[0]
+			},
+			clean: {
+				first: cleanKeys[1] ? cleanKeys[0] : null,
+				second: cleanKeys[1] || cleanKeys[0]
+			}
+		}
+
+		this._shortCuts.toggle.second = this._shortCuts.toggle.second.toUpperCase()
+		this._shortCuts.clean.second = this._shortCuts.clean.second.toUpperCase()
+	}
+
+	_captureNativeLog() {
+		const prefix = "[NATIVE]"
+		if (!this._options.captureNative) return
+		if (this._nativeConsole) return
+		this._nativeConsole = {
+			log: console.log,
+			warn: console.warn,
+			error: console.error
+		}
+
+		console.log = (args) => {
+			this.debug(prefix, args)
+			this._nativeConsole.log(args)
+		}
+
+		console.warn = (args) => {
+			this.warning(prefix, args)
+			this._nativeConsole.warn(args)
+		}
+
+		console.error = (args) => {
+			this.error(prefix, args)
+			this._nativeConsole.error(args)
+		}
+	}
+
+	_setKeyboardEvent() {
+		this._processShortCuts()
+		window.onkeydown = (function (e) {
+			let toggleCombination = false
+			if (this._shortCuts.toggle.first) {
+				switch (this._shortCuts.toggle.first) {
+					case "shift":
+						toggleCombination = e.shiftKey
+						break;
+					case "alt":
+						toggleCombination = e.altKey
+						break;
+					case "ctrl":
+						toggleCombination = e.ctrlKey
+						break;
+				}
+			} else toggleCombination = true
+
+			let cleanCombination = false
+			if (this._shortCuts.clean.first) {
+				switch (this._shortCuts.clean.first) {
+					case "shift":
+						cleanCombination = e.shiftKey
+						break;
+					case "alt":
+						cleanCombination = e.altKey
+						break;
+					case "ctrl":
+						cleanCombination = e.ctrlKey
+						break;
+				}
+			} else cleanCombination = true
+
+			if (e.keyCode == this._shortCuts.toggle.second.charCodeAt(0) && toggleCombination) this.toggle()
+			if (e.keyCode == this._shortCuts.clean.second.charCodeAt(0) && cleanCombination) this.clean()
+		}).bind(this)
+	}
+
 	_getTime() {
-		let now = new Date()
-		let hours = "0" + now.getHours()
-		hours = hours.substring(hours.length - 2)
-		let minutes = "0" + now.getMinutes()
-		minutes = minutes.substring(minutes.length - 2)
-		let seconds = "0" + now.getSeconds()
-		seconds = seconds.substring(seconds.length - 2)
-		return `${hours}:${minutes}:${seconds}`
+		return (this._options.utcTime ? new Date().toUTCString() : new Date().toString()).match(/([01]?[0-9]|2[03]):[0-5][0-9]:[0-5][0-9]/)[0]
 	}
 
 	_determineString(object) {
 		switch (typeof object) {
 			default:
-			case "object": return JSON.stringify(object)
+			case "object": return `${object.toString()} -> ${JSON.stringify(object)}`
 			case "function": return object.toString()
 			case "number":
 			case "string": return object
