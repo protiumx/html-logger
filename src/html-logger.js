@@ -14,29 +14,34 @@ const defaultOptions = {
 	shortCuts: {
 		toggle: "T",
 		clean: "L"
-	}
+	},
+	captureWebKit: false, // captures logs from web kit
+	bufferSize: 2, // 50 lines in buffer
+	loggingFormat: "$TIME$ $LEVEL$ $MESSAGE$",
+	loggingLevel: 1,
+	argumentsSeparator: " "
 }
 
 const levels = {
 	info: {
 		color: "#fff",
-		name: "info"
+		name: "INFO"
 	},
 	debug: {
 		color: "#3377ff",
-		name: "debug"
+		name: "DEBUG"
 	},
 	error: {
 		color: "#FF3E3E",
-		name: "error"
+		name: "ERROR"
 	},
 	warning: {
 		color: "#FFC53E",
-		name: "warning"
+		name: "WARNING"
 	},
 	success: {
 		color: "#3EFF45",
-		name: "success"
+		name: "SUCCESS"
 	}
 }
 /**
@@ -56,6 +61,7 @@ export default class HtmlLogger {
 		this._options = Object.assign({}, defaultOptions, options || {})
 		this._linesCount = 0
 		this.$ = {}
+		this.buffer = []
 		this.initialized = false
 	}
 
@@ -110,6 +116,24 @@ export default class HtmlLogger {
 		this.$.container.appendChild(this.$.log)
 		document.body.appendChild(this.$.container)
 		this.animationFrame = requestAnimationFrame()
+
+		if (this._options.captureWebKit) {
+			const webkitConsole = {
+				log: console.log,
+				warn: console.warn,
+				error: console.error
+			}
+
+			console.log = (args) => {
+				this.info("[native]", args)
+				webkitConsole.log(args)				
+			}
+
+			console.error = (args) => {
+				this.error("[native]", args)
+				webkitConsole.error(args)
+			}
+		}
 
 		this.initialized = true
 
@@ -180,9 +204,10 @@ export default class HtmlLogger {
 		}
 
 		this._linesCount = 0
+		this.buffer = []
 	}
 
-	
+
 	/**
 	 * prints message. default level is [info].
 	 * @param {String} msg - message to print
@@ -203,19 +228,22 @@ export default class HtmlLogger {
 
 		const lines = message.split(/\r\n|\r|\n/)
 		for (let i = 0; i < lines.length; i++) {
-			let time = document.createElement("div")
-			time.setAttribute("style", "color:#999;float:left;")
-			time.appendChild(document.createTextNode(`${this._getTime()}\u00a0`))
+			let timeElement = document.createElement("div")
+			timeElement.setAttribute("style", "color:#999;float:left;")
+			let time = this._getTime()
+			timeElement.appendChild(document.createTextNode(`${time}\u00a0`))
 
+			if (this.buffer.length >= this._options.bufferSize) this.buffer.shift()
+			this.buffer.push(`${time} ${level} ${lines[i]}`)
 			let msgContainer = document.createElement("div")
 			msgContainer.setAttribute("style", `word-wrap:break-word;margin-left:6.0em;color: ${hexColor}`)
-			msgContainer.appendChild(document.createTextNode(`[${level}] ${lines[i].replace(/ /g, "\u00a0")}`))
+			msgContainer.appendChild(document.createTextNode(`${level} ${lines[i].replace(/ /g, "\u00a0")}`))
 
 			let newLineDiv = document.createElement("div")
 			newLineDiv.setAttribute("style", "clear:both;")
 
 			var lineContainer = document.createElement("div")
-			lineContainer.appendChild(time)
+			lineContainer.appendChild(timeElement)
 			lineContainer.appendChild(msgContainer)
 			lineContainer.appendChild(newLineDiv)
 
@@ -229,25 +257,36 @@ export default class HtmlLogger {
 		}
 
 	}
-    // <levels>
+
+	get bufferSize() {
+		return this.buffer.length
+	}
+
+	getBuffer() {
+		const buf = this.buffer
+		this.buffer = []
+		return buf
+	}
+
+	// <levels>
 	info() {
-		this.print([].map.call(arguments, this._determineString).join(", "))
+		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator))
 	}
 
 	debug() {
-		this.print([].map.call(arguments, this._determineString).join(", "), levels.debug.color, levels.debug.name)
+		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.debug.color, levels.debug.name)
 	}
 
 	warning() {
-		this.print([].map.call(arguments, this._determineString).join(", "), levels.warning.color, levels.warning.name)
+		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.warning.color, levels.warning.name)
 	}
 
 	success() {
-		this.print([].map.call(arguments, this._determineString).join(", "), levels.success.color, levels.success.name)
+		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.success.color, levels.success.name)
 	}
 
 	error() {
-		this.print([].map.call(arguments, this._determineString).join(", "), levels.error.color, levels.error.name)
+		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.error.color, levels.error.name)
 	}
 	// </levels>
 	_getTime() {
