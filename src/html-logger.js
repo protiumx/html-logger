@@ -8,7 +8,7 @@ const requestAnimationFrame = (frameTime = 16) => {
 const defaultOptions = {
 	name: "Html Logger",
 	enabled: true,
-	height: 720,
+	height: 420,
 	animationDuration: 200,
 	maxLogCount: 40,
 	shortCuts: {
@@ -60,7 +60,7 @@ export default class HtmlLogger {
 	}
 
 	init(show = false) {
-		if (this.$.container) return true
+		if (this.initialized) return
 		if (!document || !document.createElement || !document.body || !document.body.appendChild)
 			throw new Error("HtmlLogger not initialized")
 
@@ -180,6 +180,15 @@ export default class HtmlLogger {
 		this._linesCount = 0
 	}
 
+	
+	/**
+	 * prints message. default level is [info].
+	 * @param {String} msg - message to print
+	 * @param {String} [hexColor=levels.info.color] - hexcolor text
+	 * @param {String} [level=levels.info.name] - level suffix
+	 * 
+	 * @memberOf HtmlLogger
+	 */
 	print(msg, hexColor = levels.info.color, level = levels.info.name) {
 		if (!this.initialized || !this._options.enabled) return
 
@@ -218,7 +227,7 @@ export default class HtmlLogger {
 		}
 
 	}
-
+    // <levels>
 	info() {
 		this.print([].map.call(arguments, this._determineString).join(", "))
 	}
@@ -238,7 +247,7 @@ export default class HtmlLogger {
 	error() {
 		this.print([].map.call(arguments, this._determineString).join(", "), levels.error.color, levels.error.name)
 	}
-
+	// </levels>
 	_getTime() {
 		let now = new Date()
 		let hours = "0" + now.getHours()
@@ -261,5 +270,3 @@ export default class HtmlLogger {
 	}
 
 }
-
-if (window) window.HtmlLogger = HtmlLogger

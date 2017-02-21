@@ -4,7 +4,7 @@ const source = require('vinyl-source-stream')
 const babel = require('gulp-babel')
 
 gulp.task('bundle', () => {
-	return browserify("./src/html-logger.js")
+	return browserify("./src/html-logger.bundle.js")
         .transform("babelify", {presets: ["es2015"]})
         .bundle()
         .pipe(source("html-logger.bundle.js"))
