@@ -66,36 +66,38 @@ export default class HtmlLogger {
 
 		this.$.container = document.createElement("div")
 		const containerStyle = `width:100%; height: ${this._options.height}px;
-                   margin:0; padding:0;
-                   position:fixed;
-                   left:0;
-                   z-index: 9999;
-									 font-family: monospace;
-									 bottom: ${-this._options.height}px` // intially hidden
+					margin:0; padding: 4px 0 0 4px;
+					position:fixed;
+					left:0;
+					z-index: 9999;
+					font-family: monospace;
+					background: rgba(0, 0, 0, 0.8);
+					bottom: ${-this._options.height}px` // intially hidden
 		this.$.container.setAttribute("style", containerStyle)
 
 		this.$.log = document.createElement("div")
-		this.$.log.setAttribute("style", `height: ${this._options.height}px; background:rgba(0, 0, 0, 0.8);`)
+		this.$.log.setAttribute("style", `height: ${this._options.height}px;`)
 
 		const span = document.createElement("span")
 		span.style.color = "#afa"
 		span.style.fontWeight = "bold"
-		const title = `===== ${this._options.name} Logger started at ${new Date()} =====`;
+		const title = `===== ${this._options.name} - Logger started at ${new Date()} =====`
 		span.appendChild(document.createTextNode(title))
 
 		const info = document.createElement('div')
-		info.setAttribute('style', "background:rgba(0, 0, 0, 0.8) ")
+		//info.setAttribute('style', "background:rgba(0, 0, 0, 0.8) ")
 		info.appendChild(span)
 
 
+		const domParser = new DOMParser()
 		const imgStyle = `width:20px; cursor: pointer; position: absolute; margin: 4px;`
-		const closeSvg = new DOMParser().parseFromString(icons.close, 'application/xml')
+		const closeSvg = domParser.parseFromString(icons.close, 'application/xml')
 		const close = info.ownerDocument.importNode(closeSvg.documentElement, true)
 		close.setAttribute("style", `${imgStyle} right:0;`)
 		close.onclick = this.hide.bind(this)
 		info.appendChild(close)
 
-		const cleanSvg = new DOMParser().parseFromString(icons.clean, 'application/xml')
+		const cleanSvg = domParser.parseFromString(icons.clean, 'application/xml')
 		const clean = info.ownerDocument.importNode(cleanSvg.documentElement, true)
 		clean.setAttribute("style", `${imgStyle} right:32px;`)
 		clean.onclick = this.clean.bind(this)
