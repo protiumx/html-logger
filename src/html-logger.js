@@ -7,6 +7,34 @@ const requestAnimationFrame = (frameTime = 16) => {
 
 const shortCutsKeys = ["shift", "alt", "ctrl"]
 
+const levels = {
+	info: {
+		color: "#fff",
+		name: "INFO",
+		level: 1
+	},
+	debug: {
+		color: "#3377ff",
+		name: "DEBUG",
+		level: 0
+	},
+	fatal: {
+		color: "#FF3E3E",
+		name: "ERROR",
+		level: 4
+	},
+	warning: {
+		color: "#FFC53E",
+		name: "WARNING",
+		level: 3
+	},
+	success: {
+		color: "#3EFF45",
+		name: "SUCCESS",
+		level: 2
+	}
+}
+
 const defaultOptions = {
 	name: "Html Logger",
 	enabled: true,
@@ -21,43 +49,10 @@ const defaultOptions = {
 	bufferSize: 100, // keep 100 lines in memory
 	loggingFormat: "[TIME] [LEVEL] [MESSAGE]",
 	argumentsSeparator: " ",
-	debug: false,
-	utcTime: true
+	utcTime: true,
+	level: 1
 }
 
-const levels = {
-	info: {
-		color: "#fff",
-		name: "INFO"
-	},
-	debug: {
-		color: "#3377ff",
-		name: "DEBUG"
-	},
-	error: {
-		color: "#FF3E3E",
-		name: "ERROR"
-	},
-	warning: {
-		color: "#FFC53E",
-		name: "WARNING"
-	},
-	success: {
-		color: "#3EFF45",
-		name: "SUCCESS"
-	}
-}
-/**
- * VS Code icons extracted from github repository. kill.svg and arrow_down.svg
-*/
-const icons = {
-	clean: `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 16 16" style="enable-background:new 0 0 16 16;" xml:space="preserve">
-						<path fill="#C5C5C5" d="M10,3V2c0-0.6-0.4-1-1-1H6C5.4,1,5,1.4,5,2v1H2v1h1v10c0,0.6,0.4,1,1,1h7c0.6,0,1-0.4,1-1V4h1V3H10z M6,12H5V6 h1V12z M6,2h3v1H6V2z M8,12H7V6h1V12z M10,12H9V6h1V12z"/>
-					</svg>`,
-	close: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 11">
-						<path transform="rotate(-180 5.49045991897583,5.811500072479248)" fill="#E8E8E8" d="m9.48046,8.9615l1.26,-1.26l-5.04,-5.04l-5.46,5.04l1.26,1.26l4.2,-3.78l3.78,3.78z"/>
-				  </svg>`
-}
 
 export default class HtmlLogger {
 	constructor(options) {
@@ -97,21 +92,7 @@ export default class HtmlLogger {
 		const info = document.createElement('div')
 		//info.setAttribute('style', "background:rgba(0, 0, 0, 0.8) ")
 		info.appendChild(span)
-
-
-		const domParser = new DOMParser()
-		const imgStyle = `width:20px; cursor: pointer; position: absolute; margin: 4px;`
-		const closeSvg = domParser.parseFromString(icons.close, 'application/xml')
-		const close = info.ownerDocument.importNode(closeSvg.documentElement, true)
-		close.setAttribute("style", `${imgStyle} right:14px;`)
-		close.onclick = this.hide.bind(this)
-		info.appendChild(close)
-
-		const cleanSvg = domParser.parseFromString(icons.clean, 'application/xml')
-		const clean = info.ownerDocument.importNode(cleanSvg.documentElement, true)
-		clean.setAttribute("style", `${imgStyle} right:38px;`)
-		clean.onclick = this.clean.bind(this)
-		info.appendChild(clean)
+	
 
 		info.appendChild(document.createElement("br"))
 		info.appendChild(document.createElement("br"))
@@ -179,6 +160,14 @@ export default class HtmlLogger {
 		this.$.log.style.color = enable ? "#fff" : "#444"
 	}
 
+	setLevel(level) {
+		this._options.level = level
+	}
+
+	/**
+	 * Removes all lines from the view 
+	 * @memberOf HtmlLogger
+	 */
 	clean() {
 		if (!this.initialized) return
 
@@ -187,7 +176,6 @@ export default class HtmlLogger {
 		}
 
 		this._linesCount = 0
-		this.buffer = []
 	}
 
 
@@ -252,24 +240,28 @@ export default class HtmlLogger {
 	}
 
 	info() {
-		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator))
+		if (this._options.level <= levels.info.level)
+			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator))
 	}
 
 	debug() {
-		if (!this._options.debug) return
-		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.debug.color, levels.debug.name)
+		if (this._options.level <= levels.debug.level)
+			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.debug.color, levels.debug.name)
 	}
 
 	warning() {
-		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.warning.color, levels.warning.name)
+		if (this._options.level <= levels.warning.level)
+			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.warning.color, levels.warning.name)
 	}
 
 	success() {
-		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.success.color, levels.success.name)
+		if (this._options.level <= levels.success.level)
+			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.success.color, levels.success.name)
 	}
 
 	error() {
-		this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.error.color, levels.error.name)
+		if (this._options.level <= levels.fatal.level)
+			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.fatal.color, levels.fatal.name)
 	}
 
 	setEnableCaptureNativeLog(enabled) {
@@ -280,10 +272,6 @@ export default class HtmlLogger {
 			console.error = this._nativeConsole.error
 			this._nativeConsole = null
 		}
-	}
-
-	toggleDebug() {
-		this._options.debug = !this._options.debug
 	}
 
 	_processShortCuts() {
@@ -311,7 +299,8 @@ export default class HtmlLogger {
 		this._nativeConsole = {
 			log: console.log,
 			warn: console.warn,
-			error: console.error
+			error: console.error,
+			info: console.info
 		}
 
 		console.log = (args) => {
