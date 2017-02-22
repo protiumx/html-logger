@@ -1,6 +1,6 @@
 {
   "name": "html-logger",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Simple html logger that appends into the page's body",
   "main": "index.js",
   "scripts": {
