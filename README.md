@@ -1,14 +1,14 @@
 
 html-logger
 ===========
-simple html logger that appends it self to a page's body. based on [http://www.songho.ca/misc/logger/files/Logger.js](http://www.songho.ca/misc/logger/files/Logger.js).
-written with ES6 syntax and transpiled with **babel.io**
+simple html logger that appends it self to a page's body. based on the idea of [http://www.songho.ca/misc/logger/files/Logger.js](http://www.songho.ca/misc/logger/files/Logger.js).
+written with ES6 syntax and transpiled with **babel.io**. feel free to hack and improve this.
 
 ![demo](https://github.com/b1tdust/html-logger/blob/master/demo/demo.gif?raw=true)
 
-this logger is usefull when you have to debug on enviroments without web-tools
+this logger is usefull when you have to debug on enviroments without access to the web-tools
 
-current release: [v1.0.0](https://github.com/b1tdust/html-logger/releases/tag/v1.0.0)
+current release: [v1.1.0](https://github.com/b1tdust/html-logger/releases/tag/v1.1.0)
 
 install
 =======
@@ -72,7 +72,7 @@ console.info -> logger.info
 ```
 * `bufferSize`: [number] set the buffer length. **default** 100. This is usefull to get the messages lines and save them to a file.
 * `argumentsSeparator`: [string] separator for the messages. **default** `" "`
-* `debug`: [boolean] show debug messages on the logger. **default** `false`. `console.log` messages appear on `logger.debug`
+* `level`: [number] logging level. **default** `1`. Levels: 0 | DEBUG, 1 | INFO, 2 | SUCCESS, 3 | WARNING, 4 | FATAL
 * `utcTime`: [boolean] the time stamp uses UTC time. **default** `true`
 * `loggingFormat`: [string] format the log message using the keywords [TIME], [LEVEL] and [MESSAGE]. **default** `"[TIME] [LEVEL] [MESSAGE]"`. e.g
 ```
@@ -85,7 +85,7 @@ logger.debug("test")
 * `init(Boolean show = false)`: initializes the logger. throws exception if **document** node == null
 * `show(), hide(), toggle()`: display methods
 * `print([object] msg, [string - a valid hex color] hexColor, [string] level)`: append message lines into the logger.
-* `toggleDebug()`: toggles debug options
+* `setLevel([number] level)`: set ogging level
 * `setEnableCaptureNativeLog(Boolean enabled)`: capture the `window.console` messages
 * `getBuffer()`: returns and clean the buffer
 
