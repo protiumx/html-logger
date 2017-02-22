@@ -9,12 +9,12 @@ const shortCutsKeys = ["shift", "alt", "ctrl"]
 
 const levels = {
 	info: {
-		color: "#fff",
+		color: "#3377ff",
 		name: "INFO",
 		level: 1
 	},
 	debug: {
-		color: "#3377ff",
+		color: "#fff",
 		name: "DEBUG",
 		level: 0
 	},
@@ -47,7 +47,7 @@ const defaultOptions = {
 	},
 	captureNative: false, // captures logs from web kit
 	bufferSize: 100, // keep 100 lines in memory
-	loggingFormat: "[TIME] [LEVEL] [MESSAGE]",
+	loggingFormat: "[LEVEL] [MESSAGE]",
 	argumentsSeparator: " ",
 	utcTime: true,
 	level: 1
@@ -205,8 +205,7 @@ export default class HtmlLogger {
 			timeElement.appendChild(document.createTextNode(`${time}\u00a0`))
 
 			if (this.buffer.length >= this._options.bufferSize) this.buffer.shift()
-			let messageLine = this._options.loggingFormat.replace("[TIME]", time)
-										.replace("[LEVEL]", level)
+			let messageLine = this._options.loggingFormat.replace("[LEVEL]", level)
 										.replace("[MESSAGE]", lines[i])// `${time} ${level} ${lines[i]}`) 
 			this.buffer.push(messageLine)
 			let msgContainer = document.createElement("div")
