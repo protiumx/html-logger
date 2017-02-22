@@ -70,11 +70,24 @@ var defaultOptions = {
 	level: 1
 };
 
+// Babel.io Object.assign
+var _extend = function _extend(target) {
+	var sources = [].slice.call(arguments, 1);
+
+	sources.forEach(function (source) {
+		for (var prop in source) {
+			target[prop] = source[prop];
+		}
+	});
+
+	return target;
+};
+
 var HtmlLogger = function () {
 	function HtmlLogger(options) {
 		_classCallCheck(this, HtmlLogger);
 
-		this._options = Object.assign({}, defaultOptions, options || {});
+		this._options = options ? _extend({}, defaultOptions, options) : defaultOptions;
 		this._linesCount = 0;
 		this.$ = {};
 		this.buffer = [];
