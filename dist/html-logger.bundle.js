@@ -355,6 +355,11 @@ var HtmlLogger = function () {
 				_this3._nativeConsole.log(args);
 			};
 
+			console.info = function (args) {
+				_this3.info(prefix, args);
+				_this3._nativeConsole.info(args);
+			};
+
 			console.warn = function (args) {
 				_this3.warning(prefix, args);
 				_this3._nativeConsole.warn(args);

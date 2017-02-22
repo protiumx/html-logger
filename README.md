@@ -17,7 +17,6 @@ install
 npm install html-logger
 ```
 
-## bower
 ```
 bower i html-logger
 ```
@@ -69,6 +68,7 @@ api
 console.log -> logger.debug
 console.warn -> logger.warning
 console.error -> logger.error
+console.info -> logger.info
 ```
 * `bufferSize`: [number] set the buffer length. **default** 100. This is usefull to get the messages lines and save them to a file.
 * `argumentsSeparator`: [string] separator for the messages. **default** `" "`

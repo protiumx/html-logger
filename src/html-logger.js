@@ -319,6 +319,11 @@ export default class HtmlLogger {
 			this._nativeConsole.log(args)
 		}
 
+		console.info = (args) => {
+			this.info(prefix, args)
+			this._nativeConsole.info(args)
+		}
+
 		console.warn = (args) => {
 			this.warning(prefix, args)
 			this._nativeConsole.warn(args)
