@@ -82,7 +82,7 @@ export default class HtmlLogger {
 			throw new Error("HtmlLogger not initialized")
 
 		this.$.container = document.createElement("div")
-		const containerStyle = `width:100%; height: ${this._options.height + 40}px;
+		const containerStyle = `width:100%; height: ${this._options.height + 48}px;
 					margin:0; padding: 6px;
 					position:fixed;
 					left:0;
@@ -203,12 +203,7 @@ export default class HtmlLogger {
 	print(msg, hexColor = levels.info.color, level = levels.info.name) {
 		if (!this.initialized || !this._options.enabled) return
 
-		let message = ""
-		if (msg == undefined) message = "undefined"
-		else if (msg == null) message = "null"
-		else message = this._determineString(msg)
-
-		if (!message.length) message = "[empty]"
+		let message = msg.length ? msg : "[empty]" 
 
 		const lines = message.split(/\r\n|\r|\n/)
 		for (let i = 0; i < lines.length; i++) {
@@ -379,6 +374,8 @@ export default class HtmlLogger {
 	}
 
 	_determineString(object) {
+		if (object == undefined) return "undefined"
+		if (object == null) return "null"
 		switch (typeof object) {
 			default:
 			case "object": return `${object.toString()} -> ${JSON.stringify(object)}`

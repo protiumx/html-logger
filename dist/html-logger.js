@@ -103,7 +103,7 @@ var HtmlLogger = function () {
 			if (!document || !document.createElement || !document.body || !document.body.appendChild) throw new Error("HtmlLogger not initialized");
 
 			this.$.container = document.createElement("div");
-			var containerStyle = "width:100%; height: " + (this._options.height + 40) + "px;\n\t\t\t\t\tmargin:0; padding: 6px;\n\t\t\t\t\tposition:fixed;\n\t\t\t\t\tleft:0;\n\t\t\t\t\tz-index: 9999;\n\t\t\t\t\tfont-family: monospace;\n\t\t\t\t\tbackground: rgba(0, 0, 0, 0.8);\n\t\t\t\t\toverflow: hidden;\n\t\t\t\t\tbottom: " + -this._options.height + "px"; // intially hidden
+			var containerStyle = "width:100%; height: " + (this._options.height + 48) + "px;\n\t\t\t\t\tmargin:0; padding: 6px;\n\t\t\t\t\tposition:fixed;\n\t\t\t\t\tleft:0;\n\t\t\t\t\tz-index: 9999;\n\t\t\t\t\tfont-family: monospace;\n\t\t\t\t\tbackground: rgba(0, 0, 0, 0.8);\n\t\t\t\t\toverflow: hidden;\n\t\t\t\t\tbottom: " + -this._options.height + "px"; // intially hidden
 			this.$.container.setAttribute("style", containerStyle);
 
 			this.$.log = document.createElement("div");
@@ -233,10 +233,7 @@ var HtmlLogger = function () {
 
 			if (!this.initialized || !this._options.enabled) return;
 
-			var message = "";
-			if (msg == undefined) message = "undefined";else if (msg == null) message = "null";else message = this._determineString(msg);
-
-			if (!message.length) message = "[empty]";
+			var message = msg.length ? msg : "[empty]";
 
 			var lines = message.split(/\r\n|\r|\n/);
 			for (var i = 0; i < lines.length; i++) {
@@ -413,6 +410,8 @@ var HtmlLogger = function () {
 	}, {
 		key: "_determineString",
 		value: function _determineString(object) {
+			if (object == undefined) return "undefined";
+			if (object == null) return "null";
 			switch (typeof object === "undefined" ? "undefined" : _typeof(object)) {
 				default:
 				case "object":
