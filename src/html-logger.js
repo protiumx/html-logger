@@ -9,7 +9,7 @@ const shortCutsKeys = ["shift", "alt", "ctrl"]
 
 const levels = {
 	info: {
-		color: "#3377ff",
+		color: "#fff",
 		name: "INFO",
 		level: 1
 	},
@@ -49,28 +49,28 @@ const defaultOptions = {
 	bufferSize: 100, // keep 100 lines in memory
 	loggingFormat: "[LEVEL] [MESSAGE]",
 	argumentsSeparator: " ",
-	utcTime: true,
-	level: 1
+	utcTime: false,
+	level: 0
 }
 
 // Babel.io Object.assign
-var _extend = function (target) {
-	var sources = [].slice.call(arguments, 1)
+var _extend = function _extend(target) {
+	var sources = [].slice.call(arguments, 1);
 
 	sources.forEach(function (source) {
 		for (var prop in source) {
-			target[prop] = source[prop]
+			target[prop] = source[prop];
 		}
-	})
+	});
 
-	return target
-}
-
+	return target;
+};
 
 export default class HtmlLogger {
 	constructor(options) {
-		this._options = options ? _extend({}, defaultOptions, options) : defaultOptions
-		this._linesCount = 0
+		this.options = _extend({}, defaultOptions, options || {})
+		this.options.height += 48
+		this.linesCount = 0
 		this.$ = {}
 		this.buffer = []
 		this.initialized = false
@@ -82,7 +82,7 @@ export default class HtmlLogger {
 			throw new Error("HtmlLogger not initialized")
 
 		this.$.container = document.createElement("div")
-		const containerStyle = `width:100%; height: ${this._options.height + 48}px;
+		const containerStyle = `width:100%; height: ${this.options.height}px;
 					margin:0; padding: 6px;
 					position:fixed;
 					left:0;
@@ -90,22 +90,22 @@ export default class HtmlLogger {
 					font-family: monospace;
 					background: rgba(0, 0, 0, 0.8);
 					overflow: hidden;
-					bottom: ${-this._options.height}px` // intially hidden
+					bottom: ${-this.options.height}px` // intially hidden
 		this.$.container.setAttribute("style", containerStyle)
 
 		this.$.log = document.createElement("div")
-		this.$.log.setAttribute("style", `height: ${this._options.height}px; overflow: hidden`)
+		this.$.log.setAttribute("style", `height: ${this.options.height - 48}px; overflow: hidden`)
 
 		const span = document.createElement("span")
 		span.style.color = "#afa"
 		span.style.fontWeight = "bold"
-		const title = `===== ${this._options.name} - Logger started at ${this._options.utcTime ? new Date().toUTCString() : new Date()} =====`
+		const title = `===== ${this.options.name} - Logger started at ${this.options.utcTime ? new Date().toUTCString() : new Date()} =====`
 		span.appendChild(document.createTextNode(title))
 
 		const info = document.createElement('div')
 		//info.setAttribute('style', "background:rgba(0, 0, 0, 0.8) ")
 		info.appendChild(span)
-	
+
 
 		info.appendChild(document.createElement("br"))
 		info.appendChild(document.createElement("br"))
@@ -122,6 +122,10 @@ export default class HtmlLogger {
 		if (show) this.show()
 	}
 
+	setLevel(level) {
+		this.options.level = level
+	}
+
 	show() {
 		if (!this.initialized || this.visible) return
 
@@ -129,13 +133,13 @@ export default class HtmlLogger {
 		let animationTime = Date.now()
 		const slideUp = () => {
 			const duration = Date.now() - animationTime
-			if (duration >= this._options.animationDuration) {
+			if (duration >= this.options.animationDuration) {
 				this.$.container.style.bottom = 0
 				this.visible = true
 				return
 			}
 
-			const y = Math.round(-this._options.height * (1 - 0.5 * (1 - Math.cos(Math.PI * duration / this._options.animationDuration))))
+			const y = Math.round(-this.options.height * (1 - 0.5 * (1 - Math.cos(Math.PI * duration / this.options.animationDuration))))
 			this.$.container.style.bottom = `${y}px`
 			this.animationFrame(slideUp)
 		}
@@ -148,13 +152,13 @@ export default class HtmlLogger {
 		let animationTime = Date.now()
 		const slideDown = () => {
 			const duration = Date.now() - animationTime
-			if (duration >= this._options.animationDuration) {
-				this.$.container.style.bottom = `${-this._options.height - 58}px`
+			if (duration >= this.options.animationDuration) {
+				this.$.container.style.bottom = `${-this.options.height - 58}px`
 				this.$.log.style.visibility = "hidden"
 				this.visible = false
 				return
 			}
-			const y = Math.round((-this._options.height) * 0.5 * (1 - Math.cos(Math.PI * duration / this._options.animationDuration)))
+			const y = Math.round((-this.options.height) * 0.5 * (1 - Math.cos(Math.PI * duration / this.options.animationDuration)))
 			this.$.container.style.bottom = `${y}px`
 			this.animationFrame(slideDown)
 		}
@@ -169,12 +173,12 @@ export default class HtmlLogger {
 	setEnable(enable = true) {
 		if (!this.initialized) return
 
-		this._options.enabled = enable
+		this.options.enabled = enable
 		this.$.log.style.color = enable ? "#fff" : "#444"
 	}
 
 	setLevel(level) {
-		this._options.level = level
+		this.options.level = level
 	}
 
 	/**
@@ -188,7 +192,7 @@ export default class HtmlLogger {
 			this.$.log.removeChild(this.$.log.firstChild);
 		}
 
-		this._linesCount = 0
+		this.linesCount = 0
 	}
 
 
@@ -201,9 +205,9 @@ export default class HtmlLogger {
 	 * @memberOf HtmlLogger
 	 */
 	print(msg, hexColor = levels.info.color, level = levels.info.name) {
-		if (!this.initialized || !this._options.enabled) return
+		if (!this.initialized || !this.options.enabled) return
 
-		let message = msg.length ? msg : "[empty]" 
+		let message = msg.length ? msg : "[empty]"
 
 		const lines = message.split(/\r\n|\r|\n/)
 		for (let i = 0; i < lines.length; i++) {
@@ -212,10 +216,11 @@ export default class HtmlLogger {
 			let time = this._getTime()
 			timeElement.appendChild(document.createTextNode(`${time}\u00a0`))
 
-			if (this.buffer.length >= this._options.bufferSize) this.buffer.shift()
-			let messageLine = this._options.loggingFormat.replace("[LEVEL]", level)
-										.replace("[MESSAGE]", lines[i])// `${time} ${level} ${lines[i]}`) 
-			this.buffer.push(messageLine)
+			if (this.buffer.length >= this.options.bufferSize) this.buffer.shift()
+			let messageLine = this.options.loggingFormat
+				.replace("[LEVEL]", level)
+				.replace("[MESSAGE]", lines[i])// `${time} ${level} ${lines[i]}`) 
+			this.buffer.push(`${time} ${messageLine}`)
 			let msgContainer = document.createElement("div")
 			msgContainer.setAttribute("style", `word-wrap:break-word;margin-left:6.0em;color: ${hexColor}`)
 			msgContainer.appendChild(document.createTextNode(messageLine))
@@ -229,12 +234,12 @@ export default class HtmlLogger {
 			lineContainer.appendChild(newLineDiv)
 
 			this.$.log.appendChild(lineContainer)
-			this._linesCount++
+			this.linesCount++
 
-			if (this._linesCount > this._options.maxLogCount) {
+			if (this.linesCount > this.options.maxLogCount) {
 				this.$.log.childNodes[0].remove()
 			}
-			
+
 			this.$.log.scrollTop = this.$.log.scrollHeight
 		}
 
@@ -247,28 +252,28 @@ export default class HtmlLogger {
 	}
 
 	info() {
-		if (this._options.level <= levels.info.level)
-			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator))
+		if (this.options.level <= levels.info.level)
+			this.print([].map.call(arguments, this._determineString).join(this.options.argumentsSeparator))
 	}
 
 	debug() {
-		if (this._options.level <= levels.debug.level)
-			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.debug.color, levels.debug.name)
+		if (this.options.level <= levels.debug.level)
+			this.print([].map.call(arguments, this._determineString).join(this.options.argumentsSeparator), levels.debug.color, levels.debug.name)
 	}
 
 	warning() {
-		if (this._options.level <= levels.warning.level)
-			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.warning.color, levels.warning.name)
+		if (this.options.level <= levels.warning.level)
+			this.print([].map.call(arguments, this._determineString).join(this.options.argumentsSeparator), levels.warning.color, levels.warning.name)
 	}
 
 	success() {
-		if (this._options.level <= levels.success.level)
-			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.success.color, levels.success.name)
+		if (this.options.level <= levels.success.level)
+			this.print([].map.call(arguments, this._determineString).join(this.options.argumentsSeparator), levels.success.color, levels.success.name)
 	}
 
 	error() {
-		if (this._options.level <= levels.fatal.level)
-			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.fatal.color, levels.fatal.name)
+		if (this.options.level <= levels.fatal.level)
+			this.print([].map.call(arguments, this._determineString).join(this.options.argumentsSeparator), levels.fatal.color, levels.fatal.name)
 	}
 
 	setEnableCaptureNativeLog(enabled) {
@@ -277,13 +282,14 @@ export default class HtmlLogger {
 			console.log = this._nativeConsole.log
 			console.warn = this._nativeConsole.warn
 			console.error = this._nativeConsole.error
+			console.info = this._nativeConsole.error
 			this._nativeConsole = null
 		}
 	}
 
 	_processShortCuts() {
-		const toggleKeys = this._options.shortCuts.toggle.split("+")
-		const cleanKeys = this._options.shortCuts.clean.split("+")
+		const toggleKeys = this.options.shortCuts.toggle.split("+")
+		const cleanKeys = this.options.shortCuts.clean.split("+")
 		this._shortCuts = {
 			toggle: {
 				first: toggleKeys[1] ? toggleKeys[0] : null,
@@ -301,7 +307,7 @@ export default class HtmlLogger {
 
 	_captureNativeLog() {
 		const prefix = "[NATIVE]"
-		if (!this._options.captureNative) return
+		if (!this.options.captureNative) return
 		if (this._nativeConsole) return
 		this._nativeConsole = {
 			log: console.log,
@@ -327,6 +333,11 @@ export default class HtmlLogger {
 
 		console.error = (args) => {
 			this.error(prefix, args)
+			this._nativeConsole.error(args)
+		}
+
+		console.info = (args) => {
+			this.info(prefix, args)
 			this._nativeConsole.error(args)
 		}
 	}
@@ -370,16 +381,16 @@ export default class HtmlLogger {
 	}
 
 	_getTime() {
-		return (this._options.utcTime ? new Date().toUTCString() : new Date().toString()).match(/([01]?[0-9]|2[03]):[0-5][0-9]:[0-5][0-9]/)[0]
+		return (this.options.utcTime ? new Date().toUTCString() : new Date().toString()).match(/([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]/)[0]
 	}
 
 	_determineString(object) {
-		if (object == undefined) return "undefined"
-		if (object == null) return "null"
+		if (object === undefined) return "undefined"
+		if (object === null) return "null"
 		switch (typeof object) {
 			default:
-			case "object": return `${object.toString()} -> ${JSON.stringify(object)}`
-			case "function": return object.toString()
+			case "object": return `${object.constructor ? object.constructor.name : object.toString()} -> ${JSON.stringify(object)}`
+			case "function": return object.name || '[function]'
 			case "number":
 			case "string": return object
 		}
