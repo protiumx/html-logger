@@ -14,7 +14,7 @@ const levels = {
 		level: 1
 	},
 	debug: {
-		color: "#3377ff",
+		color: "#fff",
 		name: "DEBUG",
 		level: 0
 	},
@@ -47,12 +47,24 @@ const defaultOptions = {
 	},
 	captureNative: false, // captures logs from web kit
 	bufferSize: 100, // keep 100 lines in memory
-	loggingFormat: "[TIME] [LEVEL] [MESSAGE]",
+	loggingFormat: "[LEVEL] [MESSAGE]",
 	argumentsSeparator: " ",
-	utcTime: true,
-	level: 1
+	utcTime: false,
+	level: 0
 }
 
+// Babel.io Object.assign
+var _extend = function _extend(target) {
+	var sources = [].slice.call(arguments, 1);
+
+	sources.forEach(function (source) {
+		for (var prop in source) {
+			target[prop] = source[prop];
+		}
+	});
+
+	return target;
+};
 
 export default class HtmlLogger {
 	constructor(options) {
@@ -166,7 +178,7 @@ export default class HtmlLogger {
 	}
 
 	setLevel(level) {
-		this._options.level = level
+		this.options.level = level
 	}
 
 	/**
@@ -180,7 +192,7 @@ export default class HtmlLogger {
 			this.$.log.removeChild(this.$.log.firstChild);
 		}
 
-		this._linesCount = 0
+		this.linesCount = 0
 	}
 
 
@@ -240,28 +252,28 @@ export default class HtmlLogger {
 	}
 
 	info() {
-		if (this._options.level <= levels.info.level)
-			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator))
+		if (this.options.level <= levels.info.level)
+			this.print([].map.call(arguments, this._determineString).join(this.options.argumentsSeparator))
 	}
 
 	debug() {
-		if (this._options.level <= levels.debug.level)
-			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.debug.color, levels.debug.name)
+		if (this.options.level <= levels.debug.level)
+			this.print([].map.call(arguments, this._determineString).join(this.options.argumentsSeparator), levels.debug.color, levels.debug.name)
 	}
 
 	warning() {
-		if (this._options.level <= levels.warning.level)
-			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.warning.color, levels.warning.name)
+		if (this.options.level <= levels.warning.level)
+			this.print([].map.call(arguments, this._determineString).join(this.options.argumentsSeparator), levels.warning.color, levels.warning.name)
 	}
 
 	success() {
-		if (this._options.level <= levels.success.level)
-			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.success.color, levels.success.name)
+		if (this.options.level <= levels.success.level)
+			this.print([].map.call(arguments, this._determineString).join(this.options.argumentsSeparator), levels.success.color, levels.success.name)
 	}
 
 	error() {
-		if (this._options.level <= levels.fatal.level)
-			this.print([].map.call(arguments, this._determineString).join(this._options.argumentsSeparator), levels.fatal.color, levels.fatal.name)
+		if (this.options.level <= levels.fatal.level)
+			this.print([].map.call(arguments, this._determineString).join(this.options.argumentsSeparator), levels.fatal.color, levels.fatal.name)
 	}
 
 	setEnableCaptureNativeLog(enabled) {
