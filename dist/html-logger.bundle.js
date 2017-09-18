@@ -80,8 +80,9 @@ var HtmlLogger = function () {
 	function HtmlLogger(options) {
 		_classCallCheck(this, HtmlLogger);
 
-		this._options = Object.assign({}, defaultOptions, options || {});
-		this._linesCount = 0;
+		this.options = _extend({}, defaultOptions, options || {});
+		this.options.height += 48;
+		this.linesCount = 0;
 		this.$ = {};
 		this.buffer = [];
 		this.initialized = false;
@@ -96,16 +97,16 @@ var HtmlLogger = function () {
 			if (!document || !document.createElement || !document.body || !document.body.appendChild) throw new Error("HtmlLogger not initialized");
 
 			this.$.container = document.createElement("div");
-			var containerStyle = "width:100%; height: " + (this._options.height + 40) + "px;\n\t\t\t\t\tmargin:0; padding: 6px;\n\t\t\t\t\tposition:fixed;\n\t\t\t\t\tleft:0;\n\t\t\t\t\tz-index: 9999;\n\t\t\t\t\tfont-family: monospace;\n\t\t\t\t\tbackground: rgba(0, 0, 0, 0.8);\n\t\t\t\t\toverflow: hidden;\n\t\t\t\t\tbottom: " + -this._options.height + "px"; // intially hidden
+			var containerStyle = "width:100%; height: " + this.options.height + "px;\n\t\t\t\t\tmargin:0; padding: 6px;\n\t\t\t\t\tposition:fixed;\n\t\t\t\t\tleft:0;\n\t\t\t\t\tz-index: 9999;\n\t\t\t\t\tfont-family: monospace;\n\t\t\t\t\tbackground: rgba(0, 0, 0, 0.8);\n\t\t\t\t\toverflow: hidden;\n\t\t\t\t\tbottom: " + -this.options.height + "px"; // intially hidden
 			this.$.container.setAttribute("style", containerStyle);
 
 			this.$.log = document.createElement("div");
-			this.$.log.setAttribute("style", "height: " + this._options.height + "px; overflow: hidden");
+			this.$.log.setAttribute("style", "height: " + (this.options.height - 48) + "px; overflow: hidden");
 
 			var span = document.createElement("span");
 			span.style.color = "#afa";
 			span.style.fontWeight = "bold";
-			var title = "===== " + this._options.name + " - Logger started at " + (this._options.utcTime ? new Date().toUTCString() : new Date()) + " =====";
+			var title = "===== " + this.options.name + " - Logger started at " + (this.options.utcTime ? new Date().toUTCString() : new Date()) + " =====";
 			span.appendChild(document.createTextNode(title));
 
 			var info = document.createElement('div');
@@ -127,6 +128,11 @@ var HtmlLogger = function () {
 			if (show) this.show();
 		}
 	}, {
+		key: "setLevel",
+		value: function setLevel(level) {
+			this.options.level = level;
+		}
+	}, {
 		key: "show",
 		value: function show() {
 			var _this = this;
@@ -137,13 +143,13 @@ var HtmlLogger = function () {
 			var animationTime = Date.now();
 			var slideUp = function slideUp() {
 				var duration = Date.now() - animationTime;
-				if (duration >= _this._options.animationDuration) {
+				if (duration >= _this.options.animationDuration) {
 					_this.$.container.style.bottom = 0;
 					_this.visible = true;
 					return;
 				}
 
-				var y = Math.round(-_this._options.height * (1 - 0.5 * (1 - Math.cos(Math.PI * duration / _this._options.animationDuration))));
+				var y = Math.round(-_this.options.height * (1 - 0.5 * (1 - Math.cos(Math.PI * duration / _this.options.animationDuration))));
 				_this.$.container.style.bottom = y + "px";
 				_this.animationFrame(slideUp);
 			};
@@ -159,13 +165,13 @@ var HtmlLogger = function () {
 			var animationTime = Date.now();
 			var slideDown = function slideDown() {
 				var duration = Date.now() - animationTime;
-				if (duration >= _this2._options.animationDuration) {
-					_this2.$.container.style.bottom = -_this2._options.height - 58 + "px";
+				if (duration >= _this2.options.animationDuration) {
+					_this2.$.container.style.bottom = -_this2.options.height - 58 + "px";
 					_this2.$.log.style.visibility = "hidden";
 					_this2.visible = false;
 					return;
 				}
-				var y = Math.round(-_this2._options.height * 0.5 * (1 - Math.cos(Math.PI * duration / _this2._options.animationDuration)));
+				var y = Math.round(-_this2.options.height * 0.5 * (1 - Math.cos(Math.PI * duration / _this2.options.animationDuration)));
 				_this2.$.container.style.bottom = y + "px";
 				_this2.animationFrame(slideDown);
 			};
@@ -183,7 +189,7 @@ var HtmlLogger = function () {
 
 			if (!this.initialized) return;
 
-			this._options.enabled = enable;
+			this.options.enabled = enable;
 			this.$.log.style.color = enable ? "#fff" : "#444";
 		}
 	}, {
@@ -224,12 +230,9 @@ var HtmlLogger = function () {
 			var hexColor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : levels.info.color;
 			var level = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : levels.info.name;
 
-			if (!this.initialized || !this._options.enabled) return;
+			if (!this.initialized || !this.options.enabled) return;
 
-			var message = "";
-			if (msg == undefined) message = "undefined";else if (msg == null) message = "null";else message = this._determineString(msg);
-
-			if (!message.length) message = "[empty]";
+			var message = msg.length ? msg : "[empty]";
 
 			var lines = message.split(/\r\n|\r|\n/);
 			for (var i = 0; i < lines.length; i++) {
@@ -238,9 +241,9 @@ var HtmlLogger = function () {
 				var time = this._getTime();
 				timeElement.appendChild(document.createTextNode(time + "\xA0"));
 
-				if (this.buffer.length >= this._options.bufferSize) this.buffer.shift();
-				var messageLine = this._options.loggingFormat.replace("[TIME]", time).replace("[LEVEL]", level).replace("[MESSAGE]", lines[i]); // `${time} ${level} ${lines[i]}`) 
-				this.buffer.push(messageLine);
+				if (this.buffer.length >= this.options.bufferSize) this.buffer.shift();
+				var messageLine = this.options.loggingFormat.replace("[LEVEL]", level).replace("[MESSAGE]", lines[i]); // `${time} ${level} ${lines[i]}`) 
+				this.buffer.push(time + " " + messageLine);
 				var msgContainer = document.createElement("div");
 				msgContainer.setAttribute("style", "word-wrap:break-word;margin-left:6.0em;color: " + hexColor);
 				msgContainer.appendChild(document.createTextNode(messageLine));
@@ -254,9 +257,9 @@ var HtmlLogger = function () {
 				lineContainer.appendChild(newLineDiv);
 
 				this.$.log.appendChild(lineContainer);
-				this._linesCount++;
+				this.linesCount++;
 
-				if (this._linesCount > this._options.maxLogCount) {
+				if (this.linesCount > this.options.maxLogCount) {
 					this.$.log.childNodes[0].remove();
 				}
 
@@ -302,14 +305,15 @@ var HtmlLogger = function () {
 				console.log = this._nativeConsole.log;
 				console.warn = this._nativeConsole.warn;
 				console.error = this._nativeConsole.error;
+				console.info = this._nativeConsole.error;
 				this._nativeConsole = null;
 			}
 		}
 	}, {
 		key: "_processShortCuts",
 		value: function _processShortCuts() {
-			var toggleKeys = this._options.shortCuts.toggle.split("+");
-			var cleanKeys = this._options.shortCuts.clean.split("+");
+			var toggleKeys = this.options.shortCuts.toggle.split("+");
+			var cleanKeys = this.options.shortCuts.clean.split("+");
 			this._shortCuts = {
 				toggle: {
 					first: toggleKeys[1] ? toggleKeys[0] : null,
@@ -330,7 +334,7 @@ var HtmlLogger = function () {
 			var _this3 = this;
 
 			var prefix = "[NATIVE]";
-			if (!this._options.captureNative) return;
+			if (!this.options.captureNative) return;
 			if (this._nativeConsole) return;
 			this._nativeConsole = {
 				log: console.log,
@@ -356,6 +360,11 @@ var HtmlLogger = function () {
 
 			console.error = function (args) {
 				_this3.error(prefix, args);
+				_this3._nativeConsole.error(args);
+			};
+
+			console.info = function (args) {
+				_this3.info(prefix, args);
 				_this3._nativeConsole.error(args);
 			};
 		}
@@ -401,17 +410,19 @@ var HtmlLogger = function () {
 	}, {
 		key: "_getTime",
 		value: function _getTime() {
-			return (this._options.utcTime ? new Date().toUTCString() : new Date().toString()).match(/([01]?[0-9]|2[03]):[0-5][0-9]:[0-5][0-9]/)[0];
+			return (this.options.utcTime ? new Date().toUTCString() : new Date().toString()).match(/([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]/)[0];
 		}
 	}, {
 		key: "_determineString",
 		value: function _determineString(object) {
+			if (object === undefined) return "undefined";
+			if (object === null) return "null";
 			switch (typeof object === "undefined" ? "undefined" : _typeof(object)) {
 				default:
 				case "object":
-					return object.toString() + " -> " + JSON.stringify(object);
+					return (object.constructor ? object.constructor.name : object.toString()) + " -> " + JSON.stringify(object);
 				case "function":
-					return object.toString();
+					return object.name || '[function]';
 				case "number":
 				case "string":
 					return object;

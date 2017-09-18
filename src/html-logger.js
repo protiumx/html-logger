@@ -93,7 +93,7 @@ export default class HtmlLogger {
 		const info = document.createElement('div')
 		//info.setAttribute('style', "background:rgba(0, 0, 0, 0.8) ")
 		info.appendChild(span)
-	
+
 
 		info.appendChild(document.createElement("br"))
 		info.appendChild(document.createElement("br"))
