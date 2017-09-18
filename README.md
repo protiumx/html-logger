@@ -8,13 +8,17 @@ written with ES6 syntax and transpiled with **babel.io**. feel free to hack and 
 
 this logger is usefull when you have to debug on enviroments without access to the web-tools
 
-current release: [v1.1.3](https://github.com/b1tdust/html-logger/releases/tag/v1.1.3)
+current release: [v1.4.0](https://github.com/b1tdust/html-logger/releases/tag/v1.4.0)
 
 install
 =======
 ## npm
 ```
 npm install html-logger
+```
+## yarn 
+```
+yarn add html-logger
 ```
 
 ```
@@ -74,10 +78,10 @@ console.info -> logger.info
 * `argumentsSeparator`: [string] separator for the messages. **default** `" "`
 * `level`: [number] logging level. **default** `1`. Levels: 0 | DEBUG, 1 | INFO, 2 | SUCCESS, 3 | WARNING, 4 | FATAL
 * `utcTime`: [boolean] the time stamp uses UTC time. **default** `true`
-* `loggingFormat`: [string] format the log message using the keywords [TIME], [LEVEL] and [MESSAGE]. **default** `"[TIME] [LEVEL] [MESSAGE]"`. e.g
+* `loggingFormat`: [string] format the log message using the keywords [LEVEL] and [MESSAGE]. **default** `"[LEVEL] [MESSAGE]"`. e.g
 ```
 logger.debug("test")
-// result: 18:00:00 DEBUG test"
+// result: DEBUG test"
 ```
 
 ## methods
@@ -88,6 +92,7 @@ logger.debug("test")
 * `setLevel([number] level)`: set ogging level
 * `setEnableCaptureNativeLog(Boolean enabled)`: capture the `window.console` messages
 * `getBuffer()`: returns and clean the buffer
+* `setLevel([number] level)`: set logging level
 
 develop
 =======
