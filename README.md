@@ -12,11 +12,10 @@ current release: [v1.4.0](https://github.com/b1tdust/html-logger/releases/tag/v1
 
 install
 =======
-## npm
 ```
 npm install html-logger
 ```
-## yarn 
+
 ```
 yarn add html-logger
 ```
@@ -36,7 +35,7 @@ logger.debug({object: 1})
 console.log({obj: ""}) // works with `captureNative` option
 ```
 
-## node | electron.io
+## node & electron.io | node-webkit
 ```js
 // preload.js
 import HtmlLogger from 'html-logger'
