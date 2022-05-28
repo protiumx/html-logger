@@ -73,7 +73,8 @@ var defaultOptions = {
 	loggingFormat: "[LEVEL] [MESSAGE]",
 	argumentsSeparator: " ",
 	utcTime: false,
-	level: 0
+	level: 0,
+	showLogScroll: true
 
 	// Babel.io Object.assign
 };var _extend = function _extend(target) {
@@ -113,7 +114,7 @@ var HtmlLogger = function () {
 			this.$.container.setAttribute("style", containerStyle);
 
 			this.$.log = document.createElement("div");
-			this.$.log.setAttribute("style", "height: " + (this.options.height - 48) + "px; overflow: hidden");
+			this.$.log.setAttribute("style", "height: " + (this.options.height - 48) + "px; overflow: hidden; overflow-y: " + (this.options.showLogScroll == true ? 'scroll' : 'hidden'));
 
 			var span = document.createElement("span");
 			span.style.color = "#afa";

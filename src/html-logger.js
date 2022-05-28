@@ -50,7 +50,8 @@ const defaultOptions = {
 	loggingFormat: "[LEVEL] [MESSAGE]",
 	argumentsSeparator: " ",
 	utcTime: false,
-	level: 0
+	level: 0,
+	showLogScroll: true
 }
 
 // Babel.io Object.assign
@@ -94,7 +95,7 @@ export default class HtmlLogger {
 		this.$.container.setAttribute("style", containerStyle)
 
 		this.$.log = document.createElement("div")
-		this.$.log.setAttribute("style", `height: ${this.options.height - 48}px; overflow: hidden`)
+		this.$.log.setAttribute("style", `height: ${this.options.height - 48}px; overflow: hidden; overflow-y: ${(this.options.showLogScroll == true) ? 'scroll': 'hidden'}`)
 
 		const span = document.createElement("span")
 		span.style.color = "#afa"
