@@ -8,7 +8,7 @@
     <body>
         <h1 style="display: block; margin: 0 auto; text-align: center">Html Logger demo</h1>
         <input type="submit" value="generate logs" onclick="generateLogs()">
-        <script src="../dist/html-logger.bundle.js"></script>
+        <script src="/dist/html-logger.bundle.js"></script>
         <script>
             function generateLogs() {
                 let a = 0
@@ -19,7 +19,8 @@
                 name: "DEMO",
                 captureNative: true,
                 debug: true,
-                utcTime: false
+                utcTime: false,
+                showLogScroll: true
             })
             logger.init(true)
             logger.info("info level")
